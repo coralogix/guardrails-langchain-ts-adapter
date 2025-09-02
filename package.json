@@ -1,6 +1,6 @@
 {
   "name": "@coralogix/guardrails-langchain",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "AI Guardrails Langchain TypeScript adapter",
   "author": "Coralogix",
   "license": "Apache-2.0",
