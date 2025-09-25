@@ -60,10 +60,10 @@ export const createResponseCondition = (projectId: string, apiKey: string) => as
 export const RESPONSE_OVERRIDE = "[Response intercepted: custom override]";
 
 // Zod schema for guardrails response
-export const GuardrailsResponseSchema = z.object({
+export const GuardrailsResponseSchema = z.looseObject({
   action: z.enum(["modify", "passthrough", "block", "rephrase"]),
   revised_response: z.string().nullable(),
-}).passthrough(); // Allow other fields to be present without validation
+}); // Allow other fields to be present without validation
 
 export type GuardrailsResponse = z.infer<typeof GuardrailsResponseSchema>;
 

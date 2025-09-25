@@ -21,12 +21,18 @@ APORIA_API_KEY=your_api_key_here
 
 # OpenAI API Key
 OPENAI_API_KEY=your_openai_api_key_here
+
+# Alternatively, to use Azure OpenAI:
+# AZURE_OPENAI_API_KEY=your_azure_openai_api_key_here
+# AZURE_OPENAI_API_INSTANCE_NAME=your_azure_openapi_api_instance_name_here
+# AZURE_OPENAI_API_DEPLOYMENT_NAME=your_azure_openai_api_deployment_name_here
+# AZURE_OPENAI_API_VERSION=your_azure_openapi_api_version_here
 ```
 
 You'll need:
 - **Aporia Project ID**: Your Aporia guardrails project identifier
 - **Aporia API Key**: Authentication key for the Aporia service
-- **OpenAI API Key**: Your OpenAI API key for the language model
+- **OpenAI / Azure OpenAI auth details**: Your OpenAI / Azure OpenAI API key for the language model
 
 ## Quick Start
 
@@ -35,10 +41,9 @@ After setting up your `.env` file, you can run the examples:
 ```bash
 # Run the basic example
 npm run example
-
-# Run the evaluation tool
-npm run eval
 ```
+
+For Azure OpenAI, please uncomment the relevant section in `example.ts`.
 
 ## Usage
 
@@ -47,7 +52,7 @@ npm run eval
 ```typescript
 import { ChatOpenAI } from "@langchain/openai";
 import { HumanMessage } from "@langchain/core/messages";
-import { withGuardrails } from "./guardrails";
+import { withGuardrails } from "@coralogix/guardrails-langchain";
 
 // Create your base model
 const model = new ChatOpenAI({
@@ -93,7 +98,7 @@ for await (const chunk of stream) {
 ### Advanced Configuration
 
 ```typescript
-import type { AporiaGuardrailsConfig } from "./guardrails";
+import type { AporiaGuardrailsConfig } from "@coralogix/guardrails-langchain";
 
 const config: AporiaGuardrailsConfig = {
   projectId: "your-project-id",
@@ -122,21 +127,6 @@ const guardedModel = withGuardrails(model, config);
    - `block` - Block content with override message
    - `modify` - Replace with suggested alternative
    - `rephrase` - Replace with rephrased version
-
-## Evaluation & Testing
-
-This repository includes a comprehensive evaluation tool (`eval.tsx`) that compares performance between models with and without guardrails:
-
-```bash
-# Run the evaluation
-npm run eval
-```
-
-The evaluation tool:
-- Tests multiple prompts in parallel
-- Measures latency differences
-- Compares responses side-by-side
-- Provides performance metrics
 
 ## Error Handling
 
