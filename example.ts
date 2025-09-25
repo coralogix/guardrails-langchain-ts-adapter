@@ -30,25 +30,25 @@ if (!APORIA_PROJECT_ID || !APORIA_API_KEY) {
 }
 
 // Example: OpenAI base model
-// const baseModel = new ChatOpenAI({
-//   model: "gpt-4o-2024-11-20",
-//   temperature: 0,
-//   configuration: {
-//     apiKey: process.env.OPENAI_API_KEY,
-//   },
-// });
-
-// Example: Azure OpenAI base model
-const baseModel = new AzureChatOpenAI({
+const baseModel = new ChatOpenAI({
   model: "gpt-4o-2024-11-20",
   temperature: 0,
-  maxTokens: undefined,
-  maxRetries: 2,
-  azureOpenAIApiKey: process.env.AZURE_OPENAI_API_KEY,
-  azureOpenAIApiInstanceName: process.env.AZURE_OPENAI_API_INSTANCE_NAME,
-  azureOpenAIApiDeploymentName: process.env.AZURE_OPENAI_API_DEPLOYMENT_NAME,
-  azureOpenAIApiVersion: process.env.AZURE_OPENAI_API_VERSION,
+  configuration: {
+    apiKey: process.env.OPENAI_API_KEY,
+  },
 });
+
+// Example: Azure OpenAI base model
+// const baseModel = new AzureChatOpenAI({
+//   model: "gpt-4o-2024-11-20",
+//   temperature: 0,
+//   maxTokens: undefined,
+//   maxRetries: 2,
+//   azureOpenAIApiKey: process.env.AZURE_OPENAI_API_KEY,
+//   azureOpenAIApiInstanceName: process.env.AZURE_OPENAI_API_INSTANCE_NAME,
+//   azureOpenAIApiDeploymentName: process.env.AZURE_OPENAI_API_DEPLOYMENT_NAME,
+//   azureOpenAIApiVersion: process.env.AZURE_OPENAI_API_VERSION,
+// });
 
 // Wrap with guardrails
 const guardedModel = withGuardrails(baseModel, {
