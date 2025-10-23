@@ -86,6 +86,14 @@ const guardedModel = withGuardrails(model, {
   chunkBatchSize: 25  // Check guardrails every 25 chunks (default: 50)
 });
 
+// Optionally override the Aporia Guardrails base URL (default: https://gr-prd.aporia.com)
+const guardedModelWithCustomBase = withGuardrails(model, {
+  projectId: "your-aporia-project-id",
+  apiKey: "your-aporia-api-key",
+  baseUrl: "https://gr-prd-eu.example.com",
+  chunkBatchSize: 25
+});
+
 const stream = await guardedModel.stream([
   new HumanMessage("Tell me a story about space exploration")
 ]);
@@ -103,7 +111,9 @@ import type { AporiaGuardrailsConfig } from "@coralogix/guardrails-langchain";
 const config: AporiaGuardrailsConfig = {
   projectId: "your-project-id",
   apiKey: "your-api-key",
-  chunkBatchSize: 100  // Optional: check every 100 chunks instead of default 50
+  chunkBatchSize: 100,  // Optional: check every 100 chunks instead of default 200
+  // Optional: override the Aporia Guardrails API base URL (defaults to https://gr-prd.aporia.com)
+  baseUrl: "https://gr-prd-eu.example.com"
 };
 
 const guardedModel = withGuardrails(model, config);
@@ -115,7 +125,8 @@ const guardedModel = withGuardrails(model, config);
 |----------|------|----------|---------|-------------|
 | `projectId` | `string` | ✅ | - | Your Aporia guardrails project ID |
 | `apiKey` | `string` | ✅ | - | Your Aporia API key |
-| `chunkBatchSize` | `number` | ❌ | `50` | How often to check guardrails during streaming (every N chunks) |
+| `chunkBatchSize` | `number` | ❌ | `200` | How often to check guardrails during streaming (every N chunks) |
+| `baseUrl` | `string` | ❌ | `https://gr-prd.aporia.com` | Optional base URL for the Aporia Guardrails API |
 
 ## How It Works
 

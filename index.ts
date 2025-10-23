@@ -21,21 +21,23 @@ import { z } from "zod";
 
 // Default values
 const DEFAULT_CHUNK_BATCH_SIZE = 200;
+const DEFAULT_BASE_URL = "https://gr-prd.aporia.com";
 
 export interface AporiaGuardrailsConfig {
   projectId: string;
   apiKey: string;
   chunkBatchSize?: number;
+  baseUrl?: string;
 }
 
 /**
  * Configurable conditions and overrides for user prompt and response.
  * Each condition receives the array of BaseMessage objects representing the prompt.
  */
-export const createPromptCondition = (projectId: string, apiKey: string) => async (
+export const createPromptCondition = (projectId: string, apiKey: string, baseUrl: string = DEFAULT_BASE_URL) => async (
   messages: BaseMessage[]
 ): Promise<{ shouldBlock: boolean; overrideResponse?: string }> => {
-  const response = await validateWithGuardrails(projectId, apiKey, messages, "", "prompt")
+  const response = await validateWithGuardrails(projectId, apiKey, messages, "", "prompt", baseUrl)
 
   // Check if the action indicates we should block or modify
   const shouldBlock = response.action === "block" || response.action === "modify" || response.action === "rephrase";
@@ -45,11 +47,11 @@ export const createPromptCondition = (projectId: string, apiKey: string) => asyn
 };
 export const PROMPT_OVERRIDE = "[Prompt intercepted: custom response]";
 
-export const createResponseCondition = (projectId: string, apiKey: string) => async (
+export const createResponseCondition = (projectId: string, apiKey: string, baseUrl: string = DEFAULT_BASE_URL) => async (
   response: AIMessage,
   messages: BaseMessage[]
 ): Promise<{ shouldBlock: boolean; overrideResponse?: string }> => {
-  const guardrailsResponse = await validateWithGuardrails(projectId, apiKey, messages, response.content as string, "response");
+  const guardrailsResponse = await validateWithGuardrails(projectId, apiKey, messages, response.content as string, "response", baseUrl);
   
   // Check if the action indicates we should block or modify
   const shouldBlock = guardrailsResponse.action === "block" || guardrailsResponse.action === "modify" || guardrailsResponse.action === "rephrase";
@@ -76,8 +78,11 @@ export async function validateWithGuardrails(
   messages: BaseMessage[],
   response: string,
   target: "prompt" | "response"
-): Promise<GuardrailsResponse> {
-  const apiUrl = `https://gr-prd.aporia.com/${projectId}/validate`;
+  , baseUrl: string = DEFAULT_BASE_URL
+  ): Promise<GuardrailsResponse> {
+  // Trim trailing slash on baseUrl to avoid double slashes
+  const trimmedBase = baseUrl.replace(/\/+$/, "");
+  const apiUrl = `${trimmedBase}/${projectId}/validate`;
   const payload = {
     messages: _convertMessagesToOpenAIParams(messages),
     response,
@@ -102,10 +107,10 @@ export async function validateWithGuardrails(
 export function withGuardrails<
   T extends BaseChatModel<any, AIMessageChunk>
 >(model: T, config: AporiaGuardrailsConfig): T {
-  const { projectId, apiKey, chunkBatchSize = DEFAULT_CHUNK_BATCH_SIZE } = config;
+  const { projectId, apiKey, chunkBatchSize = DEFAULT_CHUNK_BATCH_SIZE, baseUrl = DEFAULT_BASE_URL } = config;
 
-  const PROMPT_CONDITION = createPromptCondition(projectId, apiKey);
-  const RESPONSE_CONDITION = createResponseCondition(projectId, apiKey);
+  const PROMPT_CONDITION = createPromptCondition(projectId, apiKey, baseUrl);
+  const RESPONSE_CONDITION = createResponseCondition(projectId, apiKey, baseUrl);
 
   return new Proxy(model, {
     get(target, prop, receiver) {
@@ -150,8 +155,8 @@ export function withGuardrails<
             if (responseCheck.shouldBlock) {
               return new AIMessage(responseCheck.overrideResponse || RESPONSE_OVERRIDE);
             }
-          } catch (e) {
-            if (typeof e === "object" && e.code === "content_filter") {
+          } catch (e: any) {
+            if (e && e.code === "content_filter") {
               result = new AIMessage("I'm sorry, but I can't assist with that request.")
             } else {
               throw e
@@ -222,17 +227,17 @@ export function withGuardrails<
           // Call the original bindTools to get the new model instance
           const newModel = orig.call(target, ...args);
           // Wrap the new model instance with guardrails
-          return withGuardrails(newModel, { projectId, apiKey, chunkBatchSize });
+          return withGuardrails(newModel, { projectId, apiKey, chunkBatchSize, baseUrl });
         };
       }
 
       // Intercept withConfig to ensure new instances are also proxied
       if (prop === "withConfig" && typeof orig === "function") {
-        return (config: any) => {
+        return (cfg: any) => {
           // Call the original withConfig to get the new model instance
-          const newModel = orig.call(target, config);
+          const newModel = orig.call(target, cfg);
           // Wrap the new model instance with guardrails
-          return withGuardrails(newModel, { projectId, apiKey, chunkBatchSize });
+          return withGuardrails(newModel, { projectId, apiKey, chunkBatchSize, baseUrl });
         };
       }
 
