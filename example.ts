@@ -24,6 +24,8 @@ import 'dotenv/config';
 // Aporia Guardrails Configuration
 const APORIA_PROJECT_ID = process.env.APORIA_PROJECT_ID;
 const APORIA_API_KEY = process.env.APORIA_API_KEY;
+// Optional: override the Aporia Guardrails base URL (defaults to https://gr-prd.aporia.com)
+const APORIA_BASE_URL = process.env.APORIA_BASE_URL;
 
 if (!APORIA_PROJECT_ID || !APORIA_API_KEY) {
   throw new Error('Missing required environment variables. Please check your .env file.');
@@ -54,7 +56,10 @@ const baseModel = new ChatOpenAI({
 const guardedModel = withGuardrails(baseModel, {
   projectId: APORIA_PROJECT_ID,
   apiKey: APORIA_API_KEY,
-  chunkBatchSize: 25  // Check guardrails every 25 chunks
+  // Optional: Check guardrails every 25 chunks
+  chunkBatchSize: 25,
+  // Optional: supply a custom Aporia Guardrails base URL via `APORIA_BASE_URL` env var
+  baseUrl: APORIA_BASE_URL,
 });
 
 // ==========================================
