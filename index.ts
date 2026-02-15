@@ -15,7 +15,7 @@ import type { BaseChatModel } from "@langchain/core/language_models/chat_models"
 import type { BaseLanguageModelInput } from "@langchain/core/language_models/base";
 import type { BaseMessage } from "@langchain/core/messages";
 import { AIMessage, AIMessageChunk } from "@langchain/core/messages";
-import { _convertMessagesToOpenAIParams } from "@langchain/openai";
+import { convertMessagesToCompletionsMessageParams } from "@langchain/openai";
 import { BasePromptValueInterface } from "@langchain/core/prompt_values";
 import { z } from "zod";
 
@@ -84,7 +84,7 @@ export async function validateWithGuardrails(
   const trimmedBase = baseUrl.replace(/\/+$/, "");
   const apiUrl = `${trimmedBase}/${projectId}/validate`;
   const payload = {
-    messages: _convertMessagesToOpenAIParams(messages),
+    messages: convertMessagesToCompletionsMessageParams({ messages }),
     response,
     validation_target: target,
   };

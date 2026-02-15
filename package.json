@@ -1,10 +1,10 @@
 {
   "name": "@coralogix/guardrails-langchain",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "homepage": "https://github.com/coralogix/guardrails-langchain-ts-adapter#readme",
   "description": "AI Guardrails Langchain TypeScript adapter",
   "author": "Coralogix",
-    "bugs": {
+  "bugs": {
     "url": "https://github.com/coralogix/guardrails-langchain-ts-adapter/issues",
     "email": "support@coralogix.com"
   },
@@ -24,29 +24,42 @@
     "build": "tsdown"
   },
   "dependencies": {
-    "@langchain/core": "^0.3.64",
-    "@langchain/langgraph": "^0.3.10",
-    "@langchain/openai": "^0.6.9",
-    "zod": "^4.0.13"
+    "zod": "^4.3.6"
+  },
+  "peerDependencies": {
+    "@langchain/core": ">=1.1.0 <2",
+    "@langchain/openai": ">=1.2.0 <2",
+    "@langchain/langgraph": ">=1.0.0 <2"
+  },
+  "peerDependenciesMeta": {
+    "@langchain/langgraph": {
+      "optional": true
+    }
   },
   "devDependencies": {
+    "@langchain/core": "1.1.19",
+    "@langchain/openai": "1.2.0",
+    "@langchain/langgraph": "^1.1.4",
     "@types/node": "^24.0.15",
     "@types/react": "^19.1.8",
     "dotenv": "^16.4.7",
     "ink": "^6.0.1",
     "react": "^19.1.0",
-    "tsdown": "^0.14.2",
+    "tsdown": "^0.20.3",
     "tsx": "^4.20.3",
     "typescript": "^5.9.2"
   },
   "files": [
     "dist"
   ],
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "exports": {
-    ".": "./dist/index.js",
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
     "./package.json": "./package.json"
   }
 }
